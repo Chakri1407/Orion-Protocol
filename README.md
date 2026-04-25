@@ -4,6 +4,43 @@ A collateral-backed stablecoin system deployed on **Polygon Amoy** testnet.
 
 ---
 
+## Screenshots
+
+### Dashboard
+> Protocol overview — live OUSD supply, USDC reserves, collateral ratio, Chainlink peg status, and your wallet balances.
+
+![Dashboard](screenshots/dashboard.png)
+
+---
+
+### OUSD — Stablecoin
+> Mint OUSD with MockUSDC collateral (auto-approves), redeem for USDC, admin mint/burn, and pause controls.
+
+![OUSD Panel](screenshots/ousd.png)
+
+---
+
+### ORN — Governance Token
+> Mint ORN to treasury, burn, transfer, update treasury address, and pause/unpause.
+
+![ORN Token Panel](screenshots/orn.png)
+
+---
+
+### Distribution
+> Transfer, withdraw, or burn ORN / OUSD from the distribution vault. Tracks per-address balances.
+
+![Distribution Panel](screenshots/distribution.png)
+
+---
+
+### Treasury Vault (Multi-Sig)
+> Submit token transfers, approve with multi-sig, vote on pause/unpause, manage signers.
+
+![Treasury Vault Panel](screenshots/vault.png)
+
+---
+
 ## Contracts on Polygon Amoy
 
 | Contract               | Proxy Address                                |
