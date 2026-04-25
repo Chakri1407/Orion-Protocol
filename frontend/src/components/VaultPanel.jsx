@@ -3,13 +3,21 @@ import { ethers } from "ethers";
 import { useWeb3 } from "../context/Web3Context";
 import { ADDRESSES } from "../config/contracts";
 
-function TxRow({ tx, idx, onApprove, account, busy }) {
+function TxRow({ tx, idx, onApprove, busy }) {
+  const tokenLabel =
+    tx.token?.toLowerCase() === ADDRESSES.ORN_PROXY.toLowerCase()  ? "ORN"  :
+    tx.token?.toLowerCase() === ADDRESSES.OUSD_PROXY.toLowerCase() ? "OUSD" : tx.token;
+
   return (
     <div className="card flex flex-col md:flex-row md:items-center gap-3">
       <div className="flex-1 space-y-1 font-mono text-xs">
-        <div className="text-gray-400">Tx #{idx} — Token: <span className="text-indigo-400">{tx.token === ADDRESSES.ORN_PROXY ? "ORN" : tx.token === ADDRESSES.OUSD_PROXY ? "OUSD" : tx.token}</span></div>
+        <div className="text-gray-400">
+          Tx #{idx} — Token: <span className="text-indigo-400">{tokenLabel}</span>
+        </div>
         <div className="text-gray-400">To: <span className="text-white">{tx.to}</span></div>
-        <div className="text-gray-300">Amount: {ethers.formatEther(tx.amount)} — Approvals: {tx.approvals.toString()}</div>
+        <div className="text-gray-300">
+          Amount: {ethers.formatEther(tx.amount ?? 0n)} — Approvals: {String(tx.approvals ?? 0)}
+        </div>
       </div>
       <div className="flex items-center gap-2">
         {tx.executed
@@ -50,13 +58,31 @@ export default function VaultPanel() {
         contracts.vault.pauseRequest(),
         account ? contracts.vault.isSigner(account) : Promise.resolve(false),
       ]);
-      setInfo({ orn: ethers.formatEther(orn), ousd: ethers.formatEther(ousd), admin, required: required.toString(), paused, pauseReq, isSigner });
+      setInfo({
+        orn: ethers.formatEther(orn),
+        ousd: ethers.formatEther(ousd),
+        admin,
+        required: required.toString(),
+        paused,
+        pauseReq: {
+          pause:     pauseReq[0],
+          approvals: pauseReq[1],
+          executed:  pauseReq[2],
+        },
+        isSigner,
+      });
 
       const txList = [];
-      for (let i = 0; ; i++) {
+      for (let i = 0; i < 50; i++) {
         try {
           const tx = await contracts.vault.transactions(i);
-          txList.push({ ...tx, idx: i });
+          txList.push({
+            to:        tx[0],
+            amount:    tx[1],
+            token:     tx[2],
+            approvals: tx[3],
+            executed:  tx[4],
+          });
         } catch { break; }
       }
       setTxs(txList);
@@ -173,7 +199,7 @@ export default function VaultPanel() {
           </p>
           {info?.pauseReq && (
             <div className="text-xs text-gray-400">
-              Pending: <strong className="text-white">{info.pauseReq.pause ? "Pause" : "Unpause"}</strong> — Approvals: {info.pauseReq.approvals?.toString()} — {info.pauseReq.executed ? <span className="text-emerald-400">Executed</span> : <span className="text-yellow-400">Pending</span>}
+              Pending: <strong className="text-white">{info.pauseReq.pause ? "Pause" : "Unpause"}</strong> — Approvals: {String(info.pauseReq.approvals ?? 0)} — {info.pauseReq.executed ? <span className="text-emerald-400">Executed</span> : <span className="text-yellow-400">Pending</span>}
             </div>
           )}
           <div className="flex flex-wrap gap-2">
